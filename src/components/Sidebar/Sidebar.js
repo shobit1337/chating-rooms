@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 // Material Ui
 import FiberManualRecordIcon from "@material-ui/icons/FiberManualRecord";
@@ -6,6 +6,8 @@ import CreateIcon from "@material-ui/icons/Create";
 // Firebase
 import { useCollection } from "react-firebase-hooks/firestore";
 import { db } from "../../firsebase";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { auth } from "../../firsebase";
 // Components
 import SidebarOption from "./SidebarOption";
 // Icons
@@ -21,35 +23,47 @@ import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import AddIcon from "@material-ui/icons/Add";
 
 function Sidebar() {
+  const [roomsDisplay, setRoomsDisplay] = useState(true);
+  const [user] = useAuthState(auth);
   const [channels, loading, error] = useCollection(db.collection("rooms"));
+
   return (
     <SidebarContainer>
       <SidebarHeader>
         <SidebarInfo>
-          <h2>PAPA FAM HQ</h2>
+          <h2>CHATROOMS</h2>
           <h3>
             <FiberManualRecordIcon />
-            Shobit Deshwal
+            {user?.displayName}
           </h3>
         </SidebarInfo>
         <CreateIcon />
       </SidebarHeader>
 
-      <SidebarOption Icon={InsertCommentIcon} title="Threads" />
+      {/* <SidebarOption Icon={InsertCommentIcon} title="Threads" />
       <SidebarOption Icon={InboxIcon} title="Mentions & reactions" />
       <SidebarOption Icon={DraftsIcon} title="Saved items" />
       <SidebarOption Icon={BookmarkBorderIcon} title="Channel browser" />
       <SidebarOption Icon={PeopleAltIcon} title="People & user groups" />
       <SidebarOption Icon={AppsIcon} title="Apps" />
       <SidebarOption Icon={FileCopyIcon} title="File browser" />
-      <SidebarOption Icon={ExpandLessIcon} title="Show less" />
+      <SidebarOption Icon={ExpandLessIcon} title="Show less" /> */}
       <hr />
-      <SidebarOption Icon={ExpandMoreIcon} title="Channels" />
+      <SidebarOption
+        Icon={ExpandMoreIcon}
+        title="Rooms"
+        roomsDisplay={roomsDisplay}
+        setRoomsDisplay={setRoomsDisplay}
+      />
       <hr />
-      <SidebarOption Icon={AddIcon} addChannelOption title="Add Channel" />
-      {channels?.docs.map((doc) => (
-        <SidebarOption key={doc.id} id={doc.id} title={doc.data().name} />
-      ))}
+      {roomsDisplay ? (
+        <>
+          <SidebarOption Icon={AddIcon} addChannelOption title="Add Room" />
+          {channels?.docs.map((doc) => (
+            <SidebarOption key={doc.id} id={doc.id} title={doc.data().name} />
+          ))}
+        </>
+      ) : null}
     </SidebarContainer>
   );
 }
@@ -60,9 +74,12 @@ const SidebarContainer = styled.div`
   color: white;
   background-color: var(--slack-color);
   flex: 0.3;
+  flex-grow: 1;
+  overflow-y: scroll;
   border-top: 1px solid #49274b;
   max-width: 260px;
-  margin-top: 60px;
+  height: calc(100vh - 60px);
+  padding-top: 60px;
   > hr {
     margin-top: 10px;
     margin-bottom: 10px;

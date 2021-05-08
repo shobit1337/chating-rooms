@@ -4,8 +4,16 @@ import styled from "styled-components";
 import { enterRoom } from "../../features/appSlice";
 import { db } from "../../firsebase";
 
-function SidebarOption({ Icon, title, addChannelOption, id }) {
+function SidebarOption({
+  Icon,
+  title,
+  addChannelOption,
+  id,
+  roomsDisplay,
+  setRoomsDisplay,
+}) {
   const dispatch = useDispatch();
+
   const addChannel = () => {
     const channelName = prompt("Please enter the channel name:");
 
@@ -25,10 +33,16 @@ function SidebarOption({ Icon, title, addChannelOption, id }) {
     }
   };
 
+  const decideOnClick = () => {
+    if (title === "Rooms") {
+      setRoomsDisplay(!roomsDisplay);
+    } else {
+      addChannelOption ? addChannel() : selectChannel();
+    }
+  };
+
   return (
-    <SidebarOptionContainer
-      onClick={addChannelOption ? addChannel : selectChannel}
-    >
+    <SidebarOptionContainer onClick={decideOnClick}>
       {Icon && <Icon fontSize="small" style={{ padding: 10 }} />}
       {Icon ? (
         <h3>{title}</h3>
